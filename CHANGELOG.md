@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.0.3 - 2024-03-15
+## 1.0.0 - 03-12-2024
+
+### First stable release of the JSON Inspector package
+
+## 0.0.2 - 03-12-2024
 
 ### Updated README.md
 
-## 0.0.1 - 2024-03-12
+## 0.0.1 - 03-12-2024
 
 ### Added
 - Initial release of the JSON Inspector package
