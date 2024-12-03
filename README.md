@@ -146,7 +146,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/json_inspector.git
+    git clone https://github.com/Neelansh-ns/json_inspector.git
     ```
 
 2. Install dependencies:
@@ -161,7 +161,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     ```
 
 ## Author
-Your Name
+Neelansh Sethi
 - GitHub: [@Neelansh-ns](https://github.com/Neelansh-ns)
 - Twitter: [@neelansh_ns](https://x.com/neelansh_ns)
 
