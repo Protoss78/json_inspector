@@ -1,0 +1,56 @@
+name: json_inspector
+description: "A Flutter package that provides an interactive JSON viewer with features like expanding/collapsing nodes, selecting values, and copying to clipboard. Perfect for debugging, data inspection, and JSON visualization needs."
+version: 0.0.1
+homepage: "https://github.com/Neelansh-ns/json_inspector"
+repository: "https://github.com/Neelansh-ns/json_inspector"
+topics:
+  - ui
+  - json
+  - debug
+  - inspector
+screenshots:
+  - description: "JSON Inspector"
+    path: screenshots/json_inspector.png
+
+environment:
+  sdk: ^3.5.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
