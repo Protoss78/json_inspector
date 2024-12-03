@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3 - 2024-03-15
+
+### Updated README.md
+
 ## 0.0.1 - 2024-03-12
 
 ### Added
