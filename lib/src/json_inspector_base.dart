@@ -46,7 +46,8 @@ class _JsonInspectorState extends State<JsonInspector> {
   @override
   void didUpdateWidget(covariant JsonInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.jsonData != widget.jsonData || oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+    if (oldWidget.jsonData != widget.jsonData ||
+        oldWidget.initiallyExpanded != widget.initiallyExpanded) {
       _expandedState = {};
       _selectedState = {};
       _initializeStates(widget.jsonData, '');
@@ -93,18 +94,25 @@ class _JsonInspectorState extends State<JsonInspector> {
       },
       onLongPress: () => _copyToClipboard(value),
       child: Container(
-        color: _selectedState[path] ?? false ? Colors.blue.withOpacity(0.1) : null,
+        color: _selectedState[path] ?? false
+            ? Colors.blue.withValues(alpha: 25.5)
+            : null,
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
-            const SizedBox(width: 24), // Space for consistency with expanded items
-            Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+            const SizedBox(
+                width: 24), // Space for consistency with expanded items
+            Text(key,
+                style:
+                    widget.keyStyle ?? const TextStyle(color: Colors.purple)),
             const Text(': '),
             Flexible(
               child: Text(
                 value,
                 overflow: TextOverflow.ellipsis,
-                style: widget.valueStyle ?? TextStyle(color: value == 'null' ? Colors.grey : Colors.green),
+                style: widget.valueStyle ??
+                    TextStyle(
+                        color: value == 'null' ? Colors.grey : Colors.green),
               ),
             ),
           ],
@@ -131,7 +139,9 @@ class _JsonInspectorState extends State<JsonInspector> {
                 isExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
                 size: 24,
               ),
-              Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+              Text(key,
+                  style:
+                      widget.keyStyle ?? const TextStyle(color: Colors.purple)),
               Text(': [${data.length} items]'),
             ],
           ),
@@ -142,7 +152,8 @@ class _JsonInspectorState extends State<JsonInspector> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (var i = 0; i < data.length; i++) _buildJsonTree(data[i], '$path/$i', '[$i]'),
+                for (var i = 0; i < data.length; i++)
+                  _buildJsonTree(data[i], '$path/$i', '[$i]'),
               ],
             ),
           ),
@@ -168,7 +179,9 @@ class _JsonInspectorState extends State<JsonInspector> {
                 isExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
                 size: 24,
               ),
-              Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+              Text(key,
+                  style:
+                      widget.keyStyle ?? const TextStyle(color: Colors.purple)),
               Text(
                 ': {${data.length} keys}',
                 overflow: TextOverflow.ellipsis,
@@ -182,7 +195,9 @@ class _JsonInspectorState extends State<JsonInspector> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (var entry in data.entries) _buildJsonTree(entry.value, '$path/${entry.key}', entry.key.toString()),
+                for (var entry in data.entries)
+                  _buildJsonTree(
+                      entry.value, '$path/${entry.key}', entry.key.toString()),
               ],
             ),
           ),
