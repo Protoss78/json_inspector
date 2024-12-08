@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0 - 09-12-2024
+
+### Updated
+- Upgrade minimum Flutter SDK version to 3.5.4
+- Upgrade Linter and Analyzer Fixes
+
 ## 1.0.2 - 06-12-2024
 
 ### Linter and Analyzer Fixes
