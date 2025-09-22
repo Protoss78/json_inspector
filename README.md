@@ -46,6 +46,7 @@ final jsonData = {
 JsonInspector(
   jsonData: jsonData,
   initiallyExpanded: true, // Optional: expand all nodes initially
+  expansionDepth: 2, // Optional: control expansion depth (default: -1 for all levels)
 )
 ```
 
@@ -55,6 +56,7 @@ JsonInspector(
 JsonInspector(
   jsonData: jsonData,
   initiallyExpanded: false,
+  expansionDepth: 1, // Expand only first level when initiallyExpanded is true
   keyStyle: TextStyle(
     color: Colors.purple,
     fontWeight: FontWeight.bold,
@@ -70,6 +72,11 @@ JsonInspector(
 ### 1. Interactive Expansion
 - Click on arrows to expand/collapse nodes
 - Use `initiallyExpanded` parameter to control initial state
+- Use `expansionDepth` parameter to control how deep the initial expansion goes:
+  - `-1` (default): Expand all levels when `initiallyExpanded` is true
+  - `1`: Expand only the first level
+  - `2`: Expand up to the second level
+  - And so on...
 
 ### 2. Selection and Copying
 - Click anywhere on a line to select it
@@ -121,6 +128,7 @@ class MyApp extends StatelessWidget {
         body: JsonInspector(
           jsonData: jsonData,
           initiallyExpanded: true,
+          expansionDepth: 2, // Expand up to 2 levels deep
         ),
       ),
     );

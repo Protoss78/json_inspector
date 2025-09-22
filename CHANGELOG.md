@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0 - 22-09-2025
+
+### Added
+- New `expansionDepth` parameter to control the depth of expansion when `initiallyExpanded` is true
+
+
 ## 2.0.0 - 09-12-2024
 
 ### Updated

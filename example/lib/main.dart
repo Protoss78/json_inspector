@@ -82,6 +82,15 @@ class _MyHomePageState extends State<MyHomePage> {
   };
 
   bool _expandAll = true;
+  int _expansionDepth = -1;
+
+  final List<int> _depthOptions = [-1, 1, 2, 3];
+  final Map<int, String> _depthLabels = {
+    -1: 'All levels',
+    1: '1 level',
+    2: '2 levels',
+    3: '3 levels',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +98,32 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('JSON Inspector Example'),
         actions: [
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Expansion Settings',
+            onSelected: (int depth) {
+              setState(() {
+                _expansionDepth = depth;
+                _expandAll = true; // Enable expansion when depth is selected
+              });
+            },
+            itemBuilder: (BuildContext context) =>
+                _depthOptions.map((int depth) {
+              return PopupMenuItem<int>(
+                value: depth,
+                child: Row(
+                  children: [
+                    Icon(
+                      _expansionDepth == depth ? Icons.check : Icons.layers,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text('Expand ${_depthLabels[depth]}'),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
           IconButton(
             icon: Icon(_expandAll ? Icons.unfold_less : Icons.unfold_more),
             onPressed: () {
@@ -112,13 +147,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                '• Click arrows to expand/collapse\n'
-                '• Click anywhere to select\n'
-                '• Long press to copy values',
-                style: TextStyle(color: Colors.grey),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '• Click arrows to expand/collapse\n'
+                    '• Click anywhere to select\n'
+                    '• Long press to copy values',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Current expansion: ${_expandAll ? _depthLabels[_expansionDepth] : "Collapsed"}',
+                    style: TextStyle(
+                      color: Colors.blue[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -126,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: JsonInspector(
                   jsonData: complexJson,
                   initiallyExpanded: _expandAll,
+                  expansionDepth: _expansionDepth,
                   keyStyle: const TextStyle(
                     color: Colors.purple,
                     fontWeight: FontWeight.w500,

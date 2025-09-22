@@ -10,6 +10,10 @@ class JsonInspector extends StatefulWidget {
   /// Whether the JSON nodes should be initially expanded.
   final bool initiallyExpanded;
 
+  /// The depth level to expand when initiallyExpanded is true.
+  /// -1 means expand all levels, 1 means expand only first level, etc.
+  final int expansionDepth;
+
   /// Custom text style for JSON keys.
 
   final TextStyle? keyStyle;
@@ -23,6 +27,7 @@ class JsonInspector extends StatefulWidget {
     super.key,
     required this.jsonData,
     this.initiallyExpanded = false,
+    this.expansionDepth = -1,
     this.keyStyle,
     this.valueStyle,
   });
@@ -40,32 +45,37 @@ class _JsonInspectorState extends State<JsonInspector> {
     super.initState();
     _expandedState = {};
     _selectedState = {};
-    _initializeStates(widget.jsonData, '');
+    _initializeStates(widget.jsonData, '', 0);
   }
 
   @override
   void didUpdateWidget(covariant JsonInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.jsonData != widget.jsonData ||
-        oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+        oldWidget.initiallyExpanded != widget.initiallyExpanded ||
+        oldWidget.expansionDepth != widget.expansionDepth) {
       _expandedState = {};
       _selectedState = {};
-      _initializeStates(widget.jsonData, '');
+      _initializeStates(widget.jsonData, '', 0);
     }
   }
 
-  void _initializeStates(dynamic data, String path) {
+  void _initializeStates(dynamic data, String path, int currentDepth) {
     if (data is Map) {
-      _expandedState[path] = widget.initiallyExpanded;
+      bool shouldExpand = widget.initiallyExpanded &&
+          (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
+      _expandedState[path] = shouldExpand;
       _selectedState[path] = false;
       data.forEach((key, value) {
-        _initializeStates(value, '$path/$key');
+        _initializeStates(value, '$path/$key', currentDepth + 1);
       });
     } else if (data is List) {
-      _expandedState[path] = widget.initiallyExpanded;
+      bool shouldExpand = widget.initiallyExpanded &&
+          (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
+      _expandedState[path] = shouldExpand;
       _selectedState[path] = false;
       for (var i = 0; i < data.length; i++) {
-        _initializeStates(data[i], '$path/$i');
+        _initializeStates(data[i], '$path/$i', currentDepth + 1);
       }
     }
   }
