@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
 
 /// A widget for displaying and interacting with JSON data.
 /// Provides features like expanding/collapsing nodes, selecting values, and copying to the clipboard.
@@ -62,16 +63,16 @@ class _JsonInspectorState extends State<JsonInspector> {
 
   void _initializeStates(dynamic data, String path, int currentDepth) {
     if (data is Map) {
-      bool shouldExpand = widget.initiallyExpanded &&
-          (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
+      bool shouldExpand =
+          widget.initiallyExpanded && (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
       _expandedState[path] = shouldExpand;
       _selectedState[path] = false;
       data.forEach((key, value) {
         _initializeStates(value, '$path/$key', currentDepth + 1);
       });
     } else if (data is List) {
-      bool shouldExpand = widget.initiallyExpanded &&
-          (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
+      bool shouldExpand =
+          widget.initiallyExpanded && (widget.expansionDepth == -1 || currentDepth < widget.expansionDepth);
       _expandedState[path] = shouldExpand;
       _selectedState[path] = false;
       for (var i = 0; i < data.length; i++) {
@@ -82,49 +83,54 @@ class _JsonInspectorState extends State<JsonInspector> {
 
   Widget _buildJsonTree(dynamic data, String path, String key) {
     if (data == null) {
-      return _buildLeafNode('null', path, key);
+      return _buildLeafNode(null, 'null', path, key);
     } else if (data is num || data is bool) {
-      return _buildLeafNode(data.toString(), path, key);
+      return _buildLeafNode(data, data.toString(), path, key);
     } else if (data is String) {
-      return _buildLeafNode('"$data"', path, key);
+      return _buildLeafNode(data, '"$data"', path, key);
     } else if (data is List) {
       return _buildListNode(data, path, key);
     } else if (data is Map) {
       return _buildMapNode(data, path, key);
     }
-    return _buildLeafNode(data.toString(), path, key);
+    return _buildLeafNode(data, data.toString(), path, key);
   }
 
-  Widget _buildLeafNode(String value, String path, String key) {
+  Widget _buildLeafNode(dynamic originalValue, String displayValue, String path, String key) {
     return InkWell(
       onTap: () {
         setState(() {
           _selectedState[path] = !(_selectedState[path] ?? false);
         });
       },
-      onLongPress: () => _copyToClipboard(value),
+      onLongPress: () => _copyToClipboard(_toJsonString(originalValue)),
       child: Container(
-        color: _selectedState[path] ?? false
-            ? Colors.blue.withValues(alpha: 25.5)
-            : null,
+        color: _selectedState[path] ?? false ? Colors.blue.withValues(alpha: 25.5) : null,
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
-            const SizedBox(
-                width: 24), // Space for consistency with expanded items
-            Text(key,
-                style:
-                    widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+            const SizedBox(width: 24), // Space for consistency with expanded items
+            Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
             const Text(': '),
-            Flexible(
+            Expanded(
               child: Text(
-                value,
+                displayValue,
                 overflow: TextOverflow.ellipsis,
-                style: widget.valueStyle ??
-                    TextStyle(
-                        color: value == 'null' ? Colors.grey : Colors.green),
+                style: widget.valueStyle ?? TextStyle(color: originalValue == null ? Colors.grey : Colors.green),
               ),
             ),
+            Tooltip(
+              message: 'Copy value',
+              child: IconButton(
+                icon: const Icon(Icons.copy, size: 18),
+                visualDensity: VisualDensity.compact,
+                onPressed: () {
+                  _copyToClipboard(_toJsonString(originalValue));
+                  _showCopiedSnackBar('Copied value');
+                },
+              ),
+            ),
+            _buildOverflowMenu(path: path, keyLabel: key, node: originalValue),
           ],
         ),
       ),
@@ -142,17 +148,28 @@ class _JsonInspectorState extends State<JsonInspector> {
               _expandedState[path] = !isExpanded;
             });
           },
-          onLongPress: () => _copyToClipboard(data.toString()),
+          onLongPress: () => _copyToClipboard(_toJsonString(data)),
           child: Row(
             children: [
               Icon(
                 isExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
                 size: 24,
               ),
-              Text(key,
-                  style:
-                      widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+              Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
               Text(': [${data.length} items]'),
+              const Spacer(),
+              Tooltip(
+                message: 'Copy JSON',
+                child: IconButton(
+                  icon: const Icon(Icons.copy, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () {
+                    _copyToClipboard(_toJsonString(data));
+                    _showCopiedSnackBar('Copied array JSON');
+                  },
+                ),
+              ),
+              _buildOverflowMenu(path: path, keyLabel: key, node: data),
             ],
           ),
         ),
@@ -162,8 +179,7 @@ class _JsonInspectorState extends State<JsonInspector> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (var i = 0; i < data.length; i++)
-                  _buildJsonTree(data[i], '$path/$i', '[$i]'),
+                for (var i = 0; i < data.length; i++) _buildJsonTree(data[i], '$path/$i', '[$i]'),
               ],
             ),
           ),
@@ -182,20 +198,31 @@ class _JsonInspectorState extends State<JsonInspector> {
               _expandedState[path] = !isExpanded;
             });
           },
-          onLongPress: () => _copyToClipboard(data.toString()),
+          onLongPress: () => _copyToClipboard(_toJsonString(data)),
           child: Row(
             children: [
               Icon(
                 isExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
                 size: 24,
               ),
-              Text(key,
-                  style:
-                      widget.keyStyle ?? const TextStyle(color: Colors.purple)),
+              Text(key, style: widget.keyStyle ?? const TextStyle(color: Colors.purple)),
               Text(
                 ': {${data.length} keys}',
                 overflow: TextOverflow.ellipsis,
               ),
+              const Spacer(),
+              Tooltip(
+                message: 'Copy JSON',
+                child: IconButton(
+                  icon: const Icon(Icons.copy, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () {
+                    _copyToClipboard(_toJsonString(data));
+                    _showCopiedSnackBar('Copied object JSON');
+                  },
+                ),
+              ),
+              _buildOverflowMenu(path: path, keyLabel: key, node: data),
             ],
           ),
         ),
@@ -205,9 +232,7 @@ class _JsonInspectorState extends State<JsonInspector> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (var entry in data.entries)
-                  _buildJsonTree(
-                      entry.value, '$path/${entry.key}', entry.key.toString()),
+                for (var entry in data.entries) _buildJsonTree(entry.value, '$path/${entry.key}', entry.key.toString()),
               ],
             ),
           ),
@@ -215,8 +240,74 @@ class _JsonInspectorState extends State<JsonInspector> {
     );
   }
 
+  String _toJsonString(dynamic data) {
+    try {
+      return jsonEncode(data);
+    } catch (_) {
+      // Fallback for non-encodable objects
+      return data?.toString() ?? 'null';
+    }
+  }
+
   Future<void> _copyToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
+  }
+
+  void _showCopiedSnackBar(String message) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  Widget _buildOverflowMenu({
+    required String path,
+    required String keyLabel,
+    required dynamic node,
+  }) {
+    return PopupMenuButton<String>(
+      tooltip: 'More actions',
+      itemBuilder: (context) => const [
+        PopupMenuItem<String>(
+          value: 'copy_key',
+          child: Text('Copy key'),
+        ),
+        PopupMenuItem<String>(
+          value: 'copy_key_path',
+          child: Text('Copy key path'),
+        ),
+        PopupMenuItem<String>(
+          value: 'copy_json',
+          child: Text('Copy JSON'),
+        ),
+      ],
+      onSelected: (value) {
+        switch (value) {
+          case 'copy_key':
+            _copyToClipboard(keyLabel);
+            _showCopiedSnackBar('Copied key');
+            break;
+          case 'copy_key_path':
+            final normalized = path.startsWith('/') ? path.substring(1) : path;
+            _copyToClipboard(normalized);
+            _showCopiedSnackBar('Copied key path');
+            break;
+          case 'copy_json':
+            _copyToClipboard(_toJsonString(node));
+            _showCopiedSnackBar('Copied JSON');
+            break;
+        }
+      },
+      child: const Padding(
+        padding: EdgeInsets.only(right: 4.0),
+        child: Icon(Icons.more_vert, size: 18),
+      ),
+    );
   }
 
   @override
